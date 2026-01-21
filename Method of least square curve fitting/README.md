@@ -1,758 +1,192 @@
-📈 Least Squares Polynomial Curve Fitting (C)
-📌 Description
+# 📈 Least Squares Polynomial Curve Fitting (C)
 
-This program implements the Least Squares Method to fit a polynomial curve of a given degree to a set of observed data points.
-It finds the polynomial that minimizes the sum of squared errors between the actual data points and the predicted values.
+## 📌 Description
+This program implements the **Least Squares Method** to fit a polynomial curve of a given degree to a set of observed data points.  
+It determines the polynomial that **minimizes the sum of squared errors** between the actual data values and the predicted values.
 
-The system of equations generated from the least squares formulation is solved using Gaussian Elimination with Partial Pivoting, ensuring numerical stability.
+The system of equations obtained from the least squares formulation is solved using **Gaussian Elimination with Partial Pivoting**, which improves numerical stability.
 
-🎯 Objective
+---
 
-To determine the best-fitting polynomial of degree m:
+## 🎯 Objective
+To determine the best-fitting polynomial of degree **m**:
 
-𝑦
-=
-𝑎
-0
-+
-𝑎
-1
-𝑥
-+
-𝑎
-2
-𝑥
-2
-+
-⋯
-+
-𝑎
-𝑚
-𝑥
-𝑚
-y=a
-0
-	​
+y = a₀ + a₁x + a₂x² + ··· + aₘxᵐ
 
-+a
-1
-	​
+such that the **sum of squared residuals** is minimized:
 
-x+a
-2
-	​
+S = Σ [ yᵢ − (a₀ + a₁xᵢ + a₂xᵢ² + ··· + aₘxᵢᵐ) ]²
 
-x
-2
-+⋯+a
-m
-	​
+---
 
-x
-m
+## 🧠 Mathematical Foundation
 
-such that the sum of squared residuals is minimized:
+### 🔹 Normal Equations
+Minimizing the error function leads to **(m + 1) normal equations**:
 
-𝑆
-=
-∑
-𝑖
-=
-1
-𝑛
-[
-𝑦
-𝑖
-−
-(
-𝑎
-0
-+
-𝑎
-1
-𝑥
-𝑖
-+
-𝑎
-2
-𝑥
-𝑖
-2
-+
-⋯
-+
-𝑎
-𝑚
-𝑥
-𝑖
-𝑚
-)
-]
-2
-S=
-i=1
-∑
-n
-	​
+Σ yᵢ = a₀ n + a₁ Σ xᵢ + a₂ Σ xᵢ² + ··· + aₘ Σ xᵢᵐ  
 
-[y
-i
-	​
+Σ xᵢ yᵢ = a₀ Σ xᵢ + a₁ Σ xᵢ² + ··· + aₘ Σ xᵢᵐ⁺¹  
 
-−(a
-0
-	​
+⋮  
 
-+a
-1
-	​
+Σ xᵢᵐ yᵢ = a₀ Σ xᵢᵐ + a₁ Σ xᵢᵐ⁺¹ + ··· + aₘ Σ xᵢ²ᵐ  
 
-x
-i
-	​
+Solving these equations gives the polynomial coefficients  
+a₀, a₁, a₂, … , aₘ.
 
-+a
-2
-	​
+---
 
-x
-i
-2
-	​
+## ⚙️ Algorithm Overview
 
-+⋯+a
-m
-	​
+### Step 1: Input Phase
+1. Input number of data points **n**
+2. Input polynomial degree **m**
+   - Condition:  
+     1 ≤ m < n ≤ MAX_POINTS
+3. Input data points (xᵢ, yᵢ)
+4. Check for duplicate x-values (warning if found)
 
-x
-i
-m
-	​
+---
 
-)]
-2
-🧠 Mathematical Foundation
-🔹 Normal Equations
-
-Minimizing the error function leads to (m+1) normal equations:
-
-∑
-𝑦
-𝑖
-=
-𝑎
-0
-𝑛
-+
-𝑎
-1
-∑
-𝑥
-𝑖
-+
-𝑎
-2
-∑
-𝑥
-𝑖
-2
-+
-⋯
-+
-𝑎
-𝑚
-∑
-𝑥
-𝑖
-𝑚
-∑y
-i
-	​
-
-=a
-0
-	​
-
-n+a
-1
-	​
-
-∑x
-i
-	​
-
-+a
-2
-	​
-
-∑x
-i
-2
-	​
-
-+⋯+a
-m
-	​
-
-∑x
-i
-m
-	​
-
-∑
-𝑥
-𝑖
-𝑦
-𝑖
-=
-𝑎
-0
-∑
-𝑥
-𝑖
-+
-𝑎
-1
-∑
-𝑥
-𝑖
-2
-+
-⋯
-+
-𝑎
-𝑚
-∑
-𝑥
-𝑖
-𝑚
-+
-1
-∑x
-i
-	​
-
-y
-i
-	​
-
-=a
-0
-	​
-
-∑x
-i
-	​
-
-+a
-1
-	​
-
-∑x
-i
-2
-	​
-
-+⋯+a
-m
-	​
-
-∑x
-i
-m+1
-	​
-
-⋮
-⋮
-∑
-𝑥
-𝑖
-𝑚
-𝑦
-𝑖
-=
-𝑎
-0
-∑
-𝑥
-𝑖
-𝑚
-+
-𝑎
-1
-∑
-𝑥
-𝑖
-𝑚
-+
-1
-+
-⋯
-+
-𝑎
-𝑚
-∑
-𝑥
-𝑖
-2
-𝑚
-∑x
-i
-m
-	​
-
-y
-i
-	​
-
-=a
-0
-	​
-
-∑x
-i
-m
-	​
-
-+a
-1
-	​
-
-∑x
-i
-m+1
-	​
-
-+⋯+a
-m
-	​
-
-∑x
-i
-2m
-	​
-
-
-These equations are solved to obtain the coefficients 
-𝑎
-0
-,
-𝑎
-1
-,
-…
-,
-𝑎
-𝑚
-a
-0
-	​
-
-,a
-1
-	​
-
-,…,a
-m
-	​
-
-.
-
-⚙️ Algorithm Overview
-Step 1: Input Phase
-
-Input number of data points n
-
-Input polynomial degree m
-
-Condition:
-
-1
-≤
-𝑚
-<
-𝑛
-≤
-MAX_POINTS
-1≤m<n≤MAX_POINTS
-
-Input data points 
-(
-𝑥
-𝑖
-,
-𝑦
-𝑖
-)
-(x
-i
-	​
-
-,y
-i
-	​
-
-)
-
-Check for duplicate 
-𝑥
-x-values (warning if found)
-
-Step 2: Summation Calculation
-
+### Step 2: Summation Calculation
 Initialize:
-
-sum_x[k] = Σ x^k for 
-𝑘
-=
-0
-k=0 to 
-2
-𝑚
-2m
-
-sum_xy[k] = Σ x^k y for 
-𝑘
-=
-0
-k=0 to 
-𝑚
-m
+- sum_x[k] = Σ xᵏ  for k = 0 to 2m  
+- sum_xy[k] = Σ xᵏ y for k = 0 to m  
 
 For each data point:
+- Compute successive powers of x
+- Accumulate required summations
 
-Compute successive powers of 
-𝑥
-x
+---
 
-Accumulate required sums
+### Step 3: Construct Normal Equation Matrix
+Create augmented matrix **A** of size (m + 1) × (m + 2):
 
-Step 3: Construct Normal Equation Matrix
-
-Create augmented matrix A of size 
-(
-𝑚
-+
-1
-)
-×
-(
-𝑚
-+
-2
-)
-(m+1)×(m+2):
-
-𝐴
-[
-𝑖
-]
-[
-𝑗
-]
-=
-∑
-𝑥
-𝑖
-+
-𝑗
-A[i][j]=∑x
-i+j
-𝐴
-[
-𝑖
-]
-[
-𝑚
-+
-1
-]
-=
-∑
-𝑥
-𝑖
-𝑦
-A[i][m+1]=∑x
-i
-y
+A[i][j] = Σ x⁽ⁱ⁺ʲ⁾  
+A[i][m+1] = Σ xⁱ y  
 
 This represents the linear system:
 
-𝐴
-⋅
-𝑋
-=
-𝐵
-A⋅X=B
-Step 4: Solve Linear System (Gaussian Elimination)
+A · X = B
 
-Use Gaussian Elimination with Partial Pivoting:
+---
 
-Forward elimination
+### Step 4: Solve Linear System
+Solve the system using **Gaussian Elimination with Partial Pivoting**:
+- Forward elimination
+- Row swapping for numerical stability
+- Back substitution
 
-Row swapping for numerical stability
+This yields the coefficient vector:
 
-Back substitution
+X = [ a₀, a₁, … , aₘ ]
 
-This yields polynomial coefficients:
+---
 
-𝑋
-=
-[
-𝑎
-0
-,
-𝑎
-1
-,
-…
-,
-𝑎
-𝑚
-]
-X=[a
-0
-	​
+### Step 5: Goodness of Fit Evaluation
+1. Mean of observed values:
+   ȳ = (1 / n) Σ yᵢ
+2. Total sum of squares:
+   SS_total = Σ (yᵢ − ȳ)²
+3. Residual sum of squares:
+   SS_residual = Σ (yᵢ − ŷᵢ)²
+4. Coefficient of determination:
+   R² = 1 − (SS_residual / SS_total)
+5. Mean Absolute Error (MAE)
 
-,a
-1
-	​
+---
 
-,…,a
-m
-	​
+### Step 6: Output Results
+- Display fitted polynomial equation
+- Display coefficients a₀ to aₘ
+- Display R² and error statistics
+- Display table of actual vs predicted values
 
-]
-Step 5: Goodness of Fit Evaluation
+---
 
-Compute mean of observed values:
+## 🔁 Gaussian Elimination Algorithm
 
-𝑦
-ˉ
-=
-1
-𝑛
-∑
-𝑦
-𝑖
-y
-ˉ
-	​
+### Forward Elimination (with Partial Pivoting)
+1. Select pivot row with maximum absolute value
+2. Swap rows if required
+3. Eliminate variables below the pivot
 
-=
-n
-1
-	​
+### Back Substitution
+1. Solve the last equation
+2. Substitute upward to find remaining unknowns
 
-∑y
-i
-	​
+---
 
+## ⏱ Time Complexity
 
-Total sum of squares:
+| Step | Complexity |
+|-----|------------|
+| Input | O(n) |
+| Summation | O(n·m) |
+| Matrix construction | O(m²) |
+| Gaussian elimination | O(m³) |
+| Prediction & error | O(n·m) |
+| **Total** | **O(n·m + m³)** |
 
-𝑆
-𝑆
-𝑡
-𝑜
-𝑡
-𝑎
-𝑙
-=
-∑
-(
-𝑦
-𝑖
-−
-𝑦
-ˉ
-)
-2
-SS
-total
-	​
+---
 
-=∑(y
-i
-	​
+## 💾 Memory Requirements
 
-−
-y
-ˉ
-	​
+| Component | Space |
+|----------|-------|
+| Data points | O(n) |
+| Sum arrays | O(m) |
+| Matrix | O(m²) |
+| Coefficients | O(m) |
 
-)
-2
+---
 
-Residual sum of squares:
+## 📌 Applications
+- Scientific data fitting
+- Engineering curve approximation
+- Trend analysis and forecasting
+- Polynomial regression (Machine Learning)
+- Signal smoothing
 
-𝑆
-𝑆
-𝑟
-𝑒
-𝑠
-𝑖
-𝑑
-𝑢
-𝑎
-𝑙
-=
-∑
-(
-𝑦
-𝑖
-−
-𝑦
-^
-𝑖
-)
-2
-SS
-residual
-	​
+---
 
-=∑(y
-i
-	​
+## ⚠️ Limitations
+- Sensitive to outliers
+- High-degree polynomials may overfit
+- Numerical instability for large degree
+- Equal weighting of all data points
 
-−
-y
-^
-	​
+---
 
-i
-	​
-
-)
-2
-
-Coefficient of determination:
-
-𝑅
-2
-=
-1
-−
-𝑆
-𝑆
-𝑟
-𝑒
-𝑠
-𝑖
-𝑑
-𝑢
-𝑎
-𝑙
-𝑆
-𝑆
-𝑡
-𝑜
-𝑡
-𝑎
-𝑙
-R
-2
-=1−
-SS
-total
-	​
-
-SS
-residual
-	​
-
-	​
-
-
-Mean Absolute Error (MAE)
-
-Step 6: Output Results
-
-Display fitted polynomial equation
-
-Display coefficients
-
-Display R² value and error statistics
-
-Display table of actual vs predicted values
-
-🔁 Gaussian Elimination Algorithm
-Forward Elimination (with Partial Pivoting)
-
-Select pivot row with maximum absolute value
-
-Swap rows if necessary
-
-Eliminate variables below pivot
-
-Back Substitution
-
-Solve last equation
-
-Substitute upward to find remaining unknowns
-
-⏱ Time Complexity
-Step	Complexity
-Input	O(n)
-Summation	O(n·m)
-Matrix Construction	O(m²)
-Gaussian Elimination	O(m³)
-Prediction & Error	O(n·m)
-Total	O(n·m + m³)
-💾 Memory Requirements
-Component	Space
-Data points	O(n)
-Sum arrays	O(m)
-Matrix	O(m²)
-Coefficients	O(m)
-📌 Applications
-
-Scientific data fitting
-
-Engineering curve approximation
-
-Trend analysis & forecasting
-
-Polynomial regression (Machine Learning)
-
-Signal smoothing
-
-⚠️ Limitations
-
-Sensitive to outliers
-
-High-degree polynomials may overfit
-
-Numerical instability for large degree
-
-Equal weighting of all data points
-
-🛠 Compilation & Execution
+## 🛠 Compilation & Execution
+```bash
 gcc least_squares.c -o least_squares -lm
 ./least_squares
-
 ✅ Key Features
-
 Polynomial fitting up to degree 10
 
-Gaussian elimination with pivoting
+Gaussian elimination with partial pivoting
 
 R² goodness-of-fit calculation
 
-Mean absolute error calculation
+Mean absolute error computation
 
-Detailed, educational output
+Clear, educational output
 
 📚 Educational Value
-
 This program demonstrates:
 
 Least Squares theory
 
-Normal equations
+Normal equation formulation
 
-Matrix formulation
+Matrix-based solution
 
 Gaussian elimination
 
 Numerical stability techniques
+
+Author: Md Alamin
+Course: Numerical Methods Lab
+Purpose: Academic and learning use
